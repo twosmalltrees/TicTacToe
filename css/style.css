@@ -1,0 +1,81 @@
+body {
+  background-color: #2ecc71;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+}
+
+.container {
+  max-width: 400px;
+  height: 400px;
+  margin: auto auto;
+}
+
+.board {
+  position: relative;
+  width: 400px;
+  height: 400px;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.board_border {
+  position:absolute;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  border: 5px solid #2ecc71;
+  pointer-events: none;
+}
+
+.board_row {
+  /*background-color: white;*/
+  display: flex;
+  flex-direction: row;
+  flex-grow: 1;
+  justify-content: space-between;
+}
+
+.cell {
+  background-color: #2ecc71;
+  background-size: cover;
+  flex-grow: 1;
+  transition: background-image 0.5s;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.player_one_mark {
+  background-image: url('../images/cross.png');
+  transition: background-image 0.5s;
+}
+
+.player_one_hover {
+  background-image: none;
+  transition: background-image 0.5s;
+}
+
+.player_one_hover:hover {
+  background-image: url('../images/cross_transparent.png');
+  transition: background-image 0.5s;
+}
+
+.player_two_mark {
+  background-image: url('../images/nought.png');
+  transition: background-image 0.5s;
+}
+
+.player_two_hover {
+  background-image: none;
+  transition: background-image 0.5s;
+}
+
+.player_two_hover:hover {
+  background-image: url('../images/nought_transparent.png');
+  transition: background-image 0.5s;
+}
