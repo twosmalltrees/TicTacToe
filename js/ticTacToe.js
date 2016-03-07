@@ -210,6 +210,6 @@ GameUI = {
 
 
 $(document).ready(function(){
-  GameLogic.initializeBoardState(5);
+  GameLogic.initializeBoardState(8);
   GameUI.renderBoard(GameLogic.board);
 });
