@@ -4,8 +4,6 @@ ComputerPlayer = {
     var rows = GameState.board;
     var columns = this.getColumns();
     var diagonals = this.getDiagonals();
-    console.log("DIAGONALS ARRRRRRE:")
-    console.log(diagonals);
 
     // FIRSTLY, ALWAYS CHECK IF THE COMPUTER HAS WINNING MOVE OPTION. IF SO, TAKE IT:
     if (this.checkForWinningMove(rows, "computer") !== false) {
@@ -23,12 +21,10 @@ ComputerPlayer = {
     if (GameState.movesTaken === 1) {
       if (GameState.board[1][1].value === 1) {
         this.playStrategy = "tookCenter";
-        console.log("human took center");
         GameState.moveRequest(GameState.board[0][0]);
         return;
       } else if (GameState.board[0][0].value === 1 || GameState.board[0][2].value === 1 || GameState.board[2][0].value === 1 || GameState.board[2][2].value === 1) {
         this.playStrategy = "tookCorner";
-        console.log("Took Corner");
         GameState.moveRequest(GameState.board[1][1]);
         return;
       } else {
@@ -40,20 +36,15 @@ ComputerPlayer = {
     // SECOND COMPUTER MOVE, COMPUTER NOW CHECKS TO SEE IF HUMAN HAS ANY WIN POSSIBILITIES.
     if (this.checkForWinningMove(rows, "human") !== false) {
       GameState.moveRequest(this.checkForWinningMove(rows, "human"));
-      console.log('CHECKED RZOWS FOR HUMAN WIN');
       return;
     } else if (this.checkForWinningMove(columns, "human") !== false) {
       GameState.moveRequest(this.checkForWinningMove(columns, "human"));
-      console.log('CHECKED COLUMNS FOR HUMAN WIN');
       return;
     } else if (this.checkForWinningMove(diagonals, "human") !== false) {
-      console.log('CHECKED DIAGONALS FOR HUMAN WIN');
       GameState.moveRequest(this.checkForWinningMove(diagonals, "human"));
       return;
     }
     // IF NO WIN HUMAN WIN POSSIBILITIES LOCATED ABOVE, CONTINUES WITH THIS
-    console.log("Current STRATEGY is " + ComputerPlayer.playStrategy);
-    console.log("moves taken is" + GameState.movesTaken);
     if (GameState.movesTaken === 3) {
       if (this.playStrategy === "tookCorner") {
         if (GameState.board[0][1].value === null) {
@@ -64,21 +55,33 @@ ComputerPlayer = {
           return;
         }
       } else if (this.playStrategy === "tookMidSide") {
-        if (arraySum(rows[0]) + arraySum(columns[0]) === 2) {
+        if (this.arraySum(rows[0]) + this.arraySum(columns[0]) === 2) {
           GameState.moveRequest(GameState.board[0][0]);
           return;
-        } else if (arraySum(rows[0]) + arraySum(columns[2]) === 2) {
+        } else if (this.arraySum(rows[0]) + this.arraySum(columns[2]) === 2) {
           GameState.moveRequest(GameState.board[0][2]);
           return;
-        } else if (arraySum(rows[2]) + arraySum(columns[0]) === 2) {
+        } else if (this.arraySum(rows[2]) + this.arraySum(columns[0]) === 2) {
           GameState.moveRequest(GameState.board[2][0]);
           return;
-        } else if (arraySum(rows[2]) + arraySum(columns[2]) === 2) {
+        } else if (this.arraySum(rows[2]) + this.arraySum(columns[2]) === 2) {
           GameState.moveRequest(GameState.board[2][2]);
           return;
         }
       }
     }
+    // FINALLY, IF NONE OF THE OTHER CONDITIONS ABOVE MET, CHOSE RANDOM MOVE.
+    var possibleMoves = []; // Find all possible moves
+
+    for (var i = 0; i < GameState.boardSize; i++){
+      for (var j = 0; j < GameState.boardSize; j++){
+        if (GameState.board[i][j].value === null) {
+          possibleMoves.push(GameState.board[i][j]);
+        }
+      }
+    }
+    GameState.moveRequest(possibleMoves[Math.floor(Math.random() * (possibleMoves.length - 1))]);
+    return;
   },
   getColumns: function() {
     var cols = [];
@@ -110,51 +113,31 @@ ComputerPlayer = {
   // ?????? THE PROBLEM IS HERE!!!!!! ITS RETURNING UNDEFINED.
 
   checkForWinningMove: function(array, player) {
-    console.log("Check winning move was called");
     if (player === "human") {
       for (var i = 0; i < array.length; i++) {
-        console.log("ARRAY SUM THINGS IS>>>");
-        console.log(this.arraySum(array[i]));
         var humanWinIndex;
         if (this.arraySum(array[i]) === 2) {
-          console.log("Inner loops ran");
           for (var k = 0; k < array[i].length; k++) {
             if (array[i][k].value === null) {
               humanWinIndex = k;
               return array[i][humanWinIndex];
             }
           }
-          console.log("Human win index is: " + humanWinIndex);
-          console.log("Human has win option");
-          console.log(array[i][humanWinIndex]);
-
         }
       }
     } else if (player === "computer") {
-      console.log("Computer branch ran");
       for (var j = 0; j < array.length; j++) {
-        console.log("Array sum is:");
-        console.log(this.arraySum(array[j]));
         var computerWinIndex = 0;
-        console.log("ARRAY j IS:::::");
-        console.log(array[j]);
         if (this.arraySum(array[j]) === -2) {
           for (var m = 0; m < array[j].length; m++) {
             if (array[j][m].value === null) {
-              console.log("Array jm value is");
-              console.log(array[j][m].value);
               computerWinIndex = m;
               return array[j][computerWinIndex];
             }
-            console.log("Computer has win option");
-            console.log(array[j]);
-            console.log("computer win option is " + computerWinIndex);
-            console.log(array[j][computerWinIndex]);
           }
         }
       }
     }
-    console.log("returning false");
     return false;
   },
   arraySum: function(array) {
@@ -208,8 +191,6 @@ GameState = {
   },
 
   moveRequest: function(cell) {
-    console.log("move request was made");
-    console.log(cell);
     var xPosition = cell.x_dimension;
     var yPosition = cell.y_dimension;
     // Check if move acceptable,
@@ -364,17 +345,15 @@ GameUI = {
       value: null,
       $cell: $('<div>')
     };
+
     Cell.$cell.addClass('cell clickable player_one_hover');
-    this.addCellClickHandler(Cell);
+
+    Cell.$cell.on('click', function() {
+      GameState.moveRequest(Cell);
+    });
+
     return Cell;
   },
-
-  addCellClickHandler: function(cell) {
-    cell.$cell.on('click', function() {
-      GameState.moveRequest(cell);
-    });
-  },
-
   handleBoardSizeClick: function() {
     $('.x3').on('click', function() {
       $('.board_dimension').removeClass('selected');
@@ -455,7 +434,6 @@ GameUI = {
     $('.board_container').html("");
     GameUI.renderBoard(GameState.board);
   },
-
 
 };
 
