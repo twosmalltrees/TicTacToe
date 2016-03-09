@@ -4,11 +4,29 @@
   <meta charset="UTF-8">
   <title>Tic Tac Toe</title>
   <link rel="stylesheet" href="css/style.css">
-  <script src="http://code.jquery.com/jquery-2.2.1.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+  <script src="js/jquery-2.2.1.js"></script>
   <script src="js/ticTacToe.js"></script>
 </head>
 <body>
+  <div class="opponents_info"><span class="opponent human selected">vs. Human</span> <span class="opponent computer">vs. Computer</span></div>
   <div class="container">
+    <div class="player_info player_one">
+      <div class="player_logo">
+        <i class="fa fa-times"></i>
+      </div>
+      <div class="player_score">Score: 0</div>
+    </div>
+      <div class="board_container"></div>
+    <div class="player_info player_two">
+      <div class="player_logo">
+        <i class="fa fa-circle-o"></i>
+      </div>
+      <div class="player_score">Score: 0</div>
+    </div>
+  </div>
+  <div class="change_board_size">
+    <span class="board_dimension x3 selected">3x3</span> <span class="board_dimension x4">4x4</span> <span class="board_dimension x5">5x5</span>
   </div>
 </body>
 </html>

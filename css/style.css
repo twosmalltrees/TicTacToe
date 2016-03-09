@@ -1,15 +1,108 @@
+@import url(https://fonts.googleapis.com/css?family=Montserrat:400,700);
+
 body {
-  background-color: #2ecc71;
+  background-color: #f39c12;
+  padding: 0;
+  margin: 0;
   width: 100vw;
   height: 100vh;
   display: flex;
+  flex-direction:column;
+  justify-content: center;
   align-items: center;
 }
 
+.opponents_info {
+  width: 100%;
+  height: 120px;
+  padding-top: 85px;
+  box-sizing: border-box;
+  text-align: center;
+  font-family: "Montserrat";
+  font-weight: 400;
+  font-size: 20px;
+  color: white;
+}
+
+.opponent {
+  margin: 25px;
+  padding: 5px 10px 5px 10px;
+  border: solid 1px white;
+  border-radius: 15px;
+  font-size: 17px;
+  transition: all 0.1s;
+  cursor: pointer;
+}
+
+.opponent:hover {
+  transition: all 0.1s;
+  border: solid 1px gray;
+  color: gray;
+}
+
+.board_dimension {
+  margin: 10px;
+  padding: 5px 10px 5px 10px;
+  border: solid 1px white;
+  border-radius: 15px;
+  font-size: 20px;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.board_dimension:hover {
+  transition: all 0.2s;
+  border: solid 1px gray;
+  color: gray;
+}
+
+.selected {
+  cursor: default;
+  border: 3px solid white;
+  color: white;
+}
+
+.selected:hover {
+  border: 3px solid white;
+  color: white;
+}
+
 .container {
-  max-width: 400px;
   height: 400px;
+  width: 90%;
   margin: auto auto;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+}
+
+.board_container {
+
+
+}
+
+.player_info {
+  width: 300px;
+  height: 100%;
+  background-color: #f39c12;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.player_logo {
+  width: 100%;
+  text-align: center;
+  font-size: 70px;
+  color: white;
+}
+
+.player_score {
+  width: 100%;
+  text-align: center;
+  font-family: "Montserrat";
+  font-size: 20px;
+  color: white;
 }
 
 .board {
@@ -27,7 +120,7 @@ body {
   width: 100%;
   height: 100%;
   box-sizing: border-box;
-  border: 2px solid #2ecc71;
+  border: 2px solid #f39c12;
   pointer-events: none;
 }
 
@@ -40,7 +133,7 @@ body {
 }
 
 .cell {
-  background-color: #2ecc71;
+  background-color: #f39c12;
   background-size: cover;
   flex-grow: 1;
   transition: background-image 0.5s;
@@ -53,6 +146,14 @@ body {
 .player_one_mark {
   background-image: url('../images/cross.png');
   transition: background-image 0.5s;
+}
+.change_board_size {
+  width: 100%;
+  height: 120px;
+  text-align: center;
+  font-family: "Montserrat";
+  font-size: 20px;
+  color: white;
 }
 
 .player_one_hover {
