@@ -1,166 +1,176 @@
-/////////////////////////////////////////////////////////////
-
-
-
 ComputerPlayer = {
-  boardStateKnowledge: [],
-  currentGameHistory: [], // Arrays of boardState objects and possibleMove index of selected move.
+  playStrategy: "",
   getComputerMove: function() {
-    // Firstly test if there is anything inside boardStateKnowledge, if not, add a boardState for the current games set up
-    if (this.boardStateKnowledge.length === 0) {
-      this.boardStateKnowledge.push(this.createBoardState());
-    }
-    // First, create a local copy of the current board values in currentPositions:
-    var currentPositions = [];
+    var rows = GameState.board;
+    var columns = this.getColumns();
+    var diagonals = this.getDiagonals();
+    console.log("DIAGONALS ARRRRRRE:")
+    console.log(diagonals);
 
-    for (var i = 0; i < GameState.board.length; i++) {
-      var positionsRow = [];
-      for (var m = 0; m < GameState.board.length; m++) {
-        positionsRow.push(GameState.board[i][m].value);
-      }
-      currentPositions.push(positionsRow);
+    // FIRSTLY, ALWAYS CHECK IF THE COMPUTER HAS WINNING MOVE OPTION. IF SO, TAKE IT:
+    if (this.checkForWinningMove(rows, "computer") !== false) {
+      GameState.moveRequest(this.checkForWinningMove(rows, "computer"));
+      return;
+    } else if (this.checkForWinningMove(columns, "computer") !== false) {
+      GameState.moveRequest(this.checkForWinningMove(columns, "computer"));
+      return;
+    } else if (this.checkForWinningMove(diagonals, "computer") !== false) {
+      GameState.moveRequest(this.checkForWinningMove(diagonals, "computer"));
+      return;
     }
-    // Then need to search through the existing boardStates inside boardStateKnowledge, and check if any of them match currentPositions. If not, push it up to boardStateKnowledge...
-    var matchedBoardState;
-    var matchFound = false;
-    for (var j = 0; j < this.boardStateKnowledge.length; j++) {
-      var knownPosition = this.boardStateKnowledge[j].positions;
-      if (this.matchBoardStates(currentPositions, knownPosition)) {
-        matchFound = true;
-        matchedBoardState = this.boardStateKnowledge[j];
-      }
-    }
-    // If matchFound has not located anything, create new boardState and assign to matchedBoardState
-    if (matchFound === false) {
-      matchedBoardState = this.createBoardState();
-      this.boardStateKnowledge.push(matchedBoardState); // Pushes new boardState.
-    }
-    // Loop through the boardState.moveScores, and find the lowest score.
-    var bestMoveScore = matchedBoardState.move_scores[0];
-    var bestMoveIndex = 0;
-    var bestMoveFound = false;
-    for (var k = 0; k < matchedBoardState.move_scores.length; k++) {
-      if (matchedBoardState.move_scores[k] > bestMoveScore) {
-        bestMoveIndex = k;
-        bestMoveFound = true;
-        console.log("Best Move Found");
+
+    // ON FIRST COMPUTER MOVE, CHECK HUMAN PLAYERS FIRST MOVE AND SET STRATEGY ACCORDINGLY
+    if (GameState.movesTaken === 1) {
+      if (GameState.board[1][1].value === 1) {
+        this.playStrategy = "tookCenter";
+        console.log("human took center");
+        GameState.moveRequest(GameState.board[0][0]);
+        return;
+      } else if (GameState.board[0][0].value === 1 || GameState.board[0][2].value === 1 || GameState.board[2][0].value === 1 || GameState.board[2][2].value === 1) {
+        this.playStrategy = "tookCorner";
+        console.log("Took Corner");
+        GameState.moveRequest(GameState.board[1][1]);
+        return;
+      } else {
+        this.playStrategy = "tookMidSide";
+        GameState.moveRequest(GameState.board[1][1]);
+        return;
       }
     }
-
-    if (bestMoveFound === false) {
-      bestMoveIndex = Math.floor(Math.random() * (matchedBoardState.move_scores.length - 1));
+    // SECOND COMPUTER MOVE, COMPUTER NOW CHECKS TO SEE IF HUMAN HAS ANY WIN POSSIBILITIES.
+    if (this.checkForWinningMove(rows, "human") !== false) {
+      GameState.moveRequest(this.checkForWinningMove(rows, "human"));
+      console.log('CHECKED RZOWS FOR HUMAN WIN');
+      return;
+    } else if (this.checkForWinningMove(columns, "human") !== false) {
+      GameState.moveRequest(this.checkForWinningMove(columns, "human"));
+      console.log('CHECKED COLUMNS FOR HUMAN WIN');
+      return;
+    } else if (this.checkForWinningMove(diagonals, "human") !== false) {
+      console.log('CHECKED DIAGONALS FOR HUMAN WIN');
+      GameState.moveRequest(this.checkForWinningMove(diagonals, "human"));
+      return;
     }
-
-     // Best move index now usable...
-    // Returns the pair of indicies that represent the desired best move...
-    var bestMove = matchedBoardState.possible_moves[bestMoveIndex];
-
-    // Then search the GameState.board to find the matching cell, and pass this through to move request...
-
-    var $bestMoveCell = GameState.board[bestMove[0]][bestMove[1]];
-
-    // Push up the info on boardState at this point and chosen move to the game history.
-    this.currentGameHistory.push([matchedBoardState, bestMoveIndex]);
-
-    // REQUEST THE MOVE
-    GameState.moveRequest($bestMoveCell);
-  },
-  updateMoveScores: function(result) {
-    // Assign different scores based on result
-    var score;
-    if (result === "win") {
-      score = 0.3;
-    } else if (result === "draw") {
-      score = 0.05;
-    } else if (result === "loss") {
-      score = -0.2;
-    }
-
-    // Loop backwards through the history, adjusting moveScores.
-    for (var i = (this.currentGameHistory.length - 1); i >= 0; i--) {
-      var moveScoreIndex = this.currentGameHistory[i][1];
-      this.currentGameHistory[i][0].move_scores[moveScoreIndex] += score;
-    }
-    // FOR EACH MOVE, CHECK IF THE SELECTED MOVE STOPPED A HUMAN PLAYER WIN.
-    // YEAH...
-
-    this.currentGameHistory = [];
-  },
-  createBoardState: function() {
-    // Create an array that mirrors the current board positions.
-    var currentPositions = [];
-
-    for (var i = 0; i < GameState.board.length; i++) {
-      var positionsRow = [];
-      for (var m = 0; m < GameState.board.length; m++) {
-        positionsRow.push(GameState.board[i][m].value);
-      }
-      currentPositions.push(positionsRow);
-    }
-
-    // Provide array of indexes of all cells that are available to move on given the currentPositions
-    var possibleMoves = [];
-
-    for (var j = 0; j < currentPositions.length; j++) {
-      for (var k = 0; k < currentPositions.length; k++) {
-        if (currentPositions[j][k] === null) {
-          possibleMoves.push([j, k]);
+    // IF NO WIN HUMAN WIN POSSIBILITIES LOCATED ABOVE, CONTINUES WITH THIS
+    console.log("Current STRATEGY is " + ComputerPlayer.playStrategy);
+    console.log("moves taken is" + GameState.movesTaken);
+    if (GameState.movesTaken === 3) {
+      if (this.playStrategy === "tookCorner") {
+        if (GameState.board[0][1].value === null) {
+          GameState.moveRequest(GameState.board[0][1]);
+          return;
+        } else {
+          GameState.moveRequest(GameState.board[2][1]);
+          return;
+        }
+      } else if (this.playStrategy === "tookMidSide") {
+        if (arraySum(rows[0]) + arraySum(columns[0]) === 2) {
+          GameState.moveRequest(GameState.board[0][0]);
+          return;
+        } else if (arraySum(rows[0]) + arraySum(columns[2]) === 2) {
+          GameState.moveRequest(GameState.board[0][2]);
+          return;
+        } else if (arraySum(rows[2]) + arraySum(columns[0]) === 2) {
+          GameState.moveRequest(GameState.board[2][0]);
+          return;
+        } else if (arraySum(rows[2]) + arraySum(columns[2]) === 2) {
+          GameState.moveRequest(GameState.board[2][2]);
+          return;
         }
       }
     }
-
-    // Initialize array of scores of appropriate length, all zero.
-    var moveScores = Array(possibleMoves.length).fill(0);
-
-    boardState = {
-      positions: currentPositions,
-      possible_moves: possibleMoves,
-      move_scores: moveScores
-    };
-
-    return boardState;
   },
-
-  matchBoardStates: function(board_one, board_two) {
-    // Given two boards layouts, determines if they are the same.
-    if (board_one && board_two) {
-      var boardsEqual = true;
-      for (var i = 0; i < board_one.length; i++) {
-        for (var j = 0; j < board_one.length; j++) {
-          if (board_one[i][j] !== board_two[i][j]) {
-            boardsEqual = false;
-          }
-        }
+  getColumns: function() {
+    var cols = [];
+    for (var i = 0; i < GameState.board.length; i++) {
+      var colToPush = [];
+      for (var k = 0; k < GameState.board.length; k++) {
+        colToPush.push(GameState.board[k][i]);
       }
-      return boardsEqual;
+      cols.push(colToPush);
     }
+    return cols;
+  },
+  getDiagonals: function() {
+    var diagonals = [];
+    var diagonalToPush = [];
+    for (var i = 0; i < GameState.board.length; i++) {
+      diagonalToPush.push(GameState.board[i][i]);
+    }
+    diagonals.push(diagonalToPush);
+
+    diagonalToPush = [];
+    for (var j = 0; j < GameState.board.length; j++) {
+      diagonalToPush.push(GameState.board[j][(GameState.board.length - 1) - j]);
+    }
+    diagonals.push(diagonalToPush);
+    return diagonals;
   },
 
-  trainComputer: function(iterations) {
-    for (var i = 0; i <= iterations; i++) {
-      //GameState.resetGame();
-      //while(GameState.isGameOver() === false) {
-        var possibleMiscMoves = [];
-        for (var j = 0; j < GameState.board.length; j++) {
-          for (var k = 0; k < GameState.board.length; k++) {
-            if (GameState.board[j][k].value === null) {
-              possibleMiscMoves.push(GameState.board[j][k]);
+  // ?????? THE PROBLEM IS HERE!!!!!! ITS RETURNING UNDEFINED.
+
+  checkForWinningMove: function(array, player) {
+    console.log("Check winning move was called");
+    if (player === "human") {
+      for (var i = 0; i < array.length; i++) {
+        console.log("ARRAY SUM THINGS IS>>>");
+        console.log(this.arraySum(array[i]));
+        var humanWinIndex;
+        if (this.arraySum(array[i]) === 2) {
+          console.log("Inner loops ran");
+          for (var k = 0; k < array[i].length; k++) {
+            if (array[i][k].value === null) {
+              humanWinIndex = k;
+              return array[i][humanWinIndex];
             }
           }
+          console.log("Human win index is: " + humanWinIndex);
+          console.log("Human has win option");
+          console.log(array[i][humanWinIndex]);
+
         }
-
-        if (GameState.currentPlayer === 1) {
-          GameState.moveRequest(possibleMiscMoves[Math.floor(Math.random() * possibleMiscMoves.length)]);
-        } else {
-          ComputerPlayer.getComputerMove();
+      }
+    } else if (player === "computer") {
+      console.log("Computer branch ran");
+      for (var j = 0; j < array.length; j++) {
+        console.log("Array sum is:");
+        console.log(this.arraySum(array[j]));
+        var computerWinIndex = 0;
+        console.log("ARRAY j IS:::::");
+        console.log(array[j]);
+        if (this.arraySum(array[j]) === -2) {
+          for (var m = 0; m < array[j].length; m++) {
+            if (array[j][m].value === null) {
+              console.log("Array jm value is");
+              console.log(array[j][m].value);
+              computerWinIndex = m;
+              return array[j][computerWinIndex];
+            }
+            console.log("Computer has win option");
+            console.log(array[j]);
+            console.log("computer win option is " + computerWinIndex);
+            console.log(array[j][computerWinIndex]);
+          }
         }
-
-
-
-        console.log("CURRENT ITERATIONS: " + i);
-      //}
+      }
     }
+    console.log("returning false");
+    return false;
+  },
+  arraySum: function(array) {
+    var values = [];
+    for (var i = 0; i < array.length; i++) {
+      values.push(array[i].value);
+    }
+    var sum = values.reduce(function(a, b) {
+      return a + b;
+    });
+    if (sum === undefined) {
+      sum = 0;
+    }
+    return sum;
   }
+
 };
 
 
@@ -184,20 +194,8 @@ GameState = {
     this.currentPlayer = 1;
     this.winCells = [];
     this.movesTaken = 0;
-    this.initializeBoardState (this.boardSize);
+    this.initializeBoardState(this.boardSize);
     GameUI.resetBoard();
-  },
-
-  alertComputerOfResult: function(winner) {
-    var result;
-    if (winner === -1) {
-      result = "win";
-    } else if (winner === 1) {
-      result = "loss";
-    } else if (winner === 0) {
-      result = "draw";
-    }
-    ComputerPlayer.updateMoveScores(result);
   },
   initializeBoardState: function(dimension) {
     // Sets up board.
@@ -210,6 +208,8 @@ GameState = {
   },
 
   moveRequest: function(cell) {
+    console.log("move request was made");
+    console.log(cell);
     var xPosition = cell.x_dimension;
     var yPosition = cell.y_dimension;
     // Check if move acceptable,
@@ -240,18 +240,16 @@ GameState = {
 
   isGameOver: function() {
     if (this.checkRows() || this.checkColumns() || this.checkDiagonals()) {
-        GameState.alertComputerOfResult(this.currentPlayer);
-        if (this.currentPlayer === 1) {
-          this.playerOneWins ++;
-        } else if (this.currentPlayer === -1) {
-          this.playerTwoWins ++;
-        }
-        return true;
+      if (this.currentPlayer === 1) {
+        this.playerOneWins++;
+      } else if (this.currentPlayer === -1) {
+        this.playerTwoWins++;
+      }
+      return true;
     } else if (this.movesTaken === (this.board.length * this.board.length)) {
-        GameState.alertComputerOfResult(0); // 0 is input if draw...
-        return true;
+      return true;
     } else {
-        return false;
+      return false;
     }
 
 
@@ -378,19 +376,19 @@ GameUI = {
   },
 
   handleBoardSizeClick: function() {
-    $('.x3').on('click', function(){
+    $('.x3').on('click', function() {
       $('.board_dimension').removeClass('selected');
       GameState.boardSize = 3;
       GameState.resetGame();
       $(this).addClass('selected');
     });
-    $('.x4').on('click', function(){
+    $('.x4').on('click', function() {
       $('.board_dimension').removeClass('selected');
       GameState.boardSize = 4;
       GameState.resetGame();
       $(this).addClass('selected');
     });
-    $('.x5').on('click', function(){
+    $('.x5').on('click', function() {
       $('.board_dimension').removeClass('selected');
       GameState.boardSize = 5;
       GameState.resetGame();
