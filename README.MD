@@ -10,7 +10,7 @@ You can play against a friend (or yourself) in this traditional version.
 
 ### Human vs. Computer
 
-Alternatively if you prefer more of a challenge, take on the computer! You get the first move, but rumour has it that the computer has never been beaten on a 3x3 board... To toggle between the two modes just click the appropriate link above the board.
+Alternatively if you prefer more of a challenge, take on the computer! You get the first move - but be warned, rumour has it that the computer has never been beaten on a 3x3 board... To toggle between the two modes just click the appropriate link above the board.
 
 ### Adjust Board Size
 
