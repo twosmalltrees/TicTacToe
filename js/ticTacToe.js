@@ -73,8 +73,8 @@ ComputerPlayer = {
     // FINALLY, IF NONE OF THE OTHER CONDITIONS ABOVE MET, CHOSE RANDOM MOVE.
     var possibleMoves = []; // Find all possible moves
 
-    for (var i = 0; i < GameState.boardSize; i++){
-      for (var j = 0; j < GameState.boardSize; j++){
+    for (var i = 0; i < GameState.boardSize; i++) {
+      for (var j = 0; j < GameState.boardSize; j++) {
         if (GameState.board[i][j].value === null) {
           possibleMoves.push(GameState.board[i][j]);
         }
@@ -83,6 +83,7 @@ ComputerPlayer = {
     GameState.moveRequest(possibleMoves[Math.floor(Math.random() * (possibleMoves.length - 1))]);
     return;
   },
+  // Returns all the columns as array
   getColumns: function() {
     var cols = [];
     for (var i = 0; i < GameState.board.length; i++) {
@@ -94,6 +95,8 @@ ComputerPlayer = {
     }
     return cols;
   },
+
+  // Returns all the diagonal directions as arrays
   getDiagonals: function() {
     var diagonals = [];
     var diagonalToPush = [];
@@ -110,8 +113,7 @@ ComputerPlayer = {
     return diagonals;
   },
 
-  // ?????? THE PROBLEM IS HERE!!!!!! ITS RETURNING UNDEFINED.
-
+  // Checks through provided array and adds up scores to determine if either the human has a possible winning move, or if the computer does.
   checkForWinningMove: function(array, player) {
     if (player === "human") {
       for (var i = 0; i < array.length; i++) {
@@ -140,6 +142,8 @@ ComputerPlayer = {
     }
     return false;
   },
+
+  // Sums and returns the provided array.
   arraySum: function(array) {
     var values = [];
     for (var i = 0; i < array.length; i++) {
@@ -155,6 +159,7 @@ ComputerPlayer = {
   }
 };
 
+// Stores board state info
 GameState = {
   board: [],
   opponent: "human",
@@ -164,6 +169,8 @@ GameState = {
   movesTaken: 0,
   playerOneWins: 0,
   playerTwoWins: 0,
+
+  // Clears out the current board and initializes new board. Also calls resetBoard to update the UI
   resetGame: function() {
     this.board = [];
     this.currentPlayer = 1;
@@ -172,6 +179,8 @@ GameState = {
     this.initializeBoardState(this.boardSize);
     GameUI.resetBoard();
   },
+
+  // Initialize new board state
   initializeBoardState: function(dimension) {
     // Sets up board.
     for (var y = 0; y < dimension; y++) {
@@ -182,6 +191,7 @@ GameState = {
     }
   },
 
+  // Issues move request to the specified cell
   moveRequest: function(cell) {
     var xPosition = cell.x_dimension;
     var yPosition = cell.y_dimension;
@@ -201,6 +211,7 @@ GameState = {
     }
   },
 
+  // Checks if game over by checking on rows, columns and diagonals
   isGameOver: function() {
     if (this.checkRows() || this.checkColumns() || this.checkDiagonals()) {
       if (this.currentPlayer === 1) {
@@ -219,6 +230,7 @@ GameState = {
     }
   },
 
+  // Checks rows
   checkRows: function() {
     // Needs to check rows and if it finds a winning combination, return an array of index pairs.
     for (var y = 0; y < this.board.length; y++) {
@@ -237,6 +249,7 @@ GameState = {
     }
   },
 
+  // Checks columns
   checkColumns: function() {
     for (var x = 0; x < this.board.length; x++) {
       var currentCol = [];
@@ -255,6 +268,7 @@ GameState = {
     return false;
   },
 
+  // Checks diagonals
   checkDiagonals: function() {
     // Test first diagonal
     var isWinningDiagonal = true;
@@ -289,6 +303,8 @@ GameState = {
 
 
 GameUI = {
+
+  // Renders the game play board on screen
   renderBoard: function(board) {
     $board = $('<div>');
     $board.addClass('board');
@@ -312,6 +328,7 @@ GameUI = {
     });
   },
 
+  // Creates a new cell object
   makeCell: function(x, y) {
     var Cell = {
       x_dimension: x,
@@ -328,6 +345,8 @@ GameUI = {
 
     return Cell;
   },
+
+  // Assigns click handlers to the board size change buttons
   handleBoardSizeClick: function() {
     $('.x3').on('click', function() {
       $('.board_dimension').removeClass('selected');
@@ -349,6 +368,7 @@ GameUI = {
     });
   },
 
+  // Assigns click handlers to the opponent change buttons
   handleOpponentChangeClick: function() {
     $('.human').on('click', function() {
       $('.opponent').removeClass('selected');
@@ -365,6 +385,7 @@ GameUI = {
     });
   },
 
+  // Marks the board at specified cell with either x or o dependent on specified player
   markBoard: function(player, cell) { // Takes a player and a cell object.
     if (player === 1) {
       cell.$cell.removeClass('clickable player_one_hover player_two_hover').addClass('player_one_mark');
@@ -373,6 +394,7 @@ GameUI = {
     }
   },
 
+  // Updates to the new player turn, changes player piece etx
   updatePlayerTurn: function(player) {
     if (GameState.opponent === "human") {
       if (player === 1) {
@@ -390,6 +412,7 @@ GameUI = {
     }
   },
 
+  // Updates the player scores
   updatePlayerScores: function() {
     var playerOneScore = GameState.playerOneWins;
     var playerTwoScore = GameState.playerTwoWins;
@@ -397,6 +420,7 @@ GameUI = {
     $(".player_two .player_score").text("Score: " + playerTwoScore);
   },
 
+  // Runs the end game procedure
   endGame: function(player, winningCells) {
     $('.cell').removeClass('clickable player_one_hover player_two_hover');
     $('div.cell').off('click');
@@ -406,38 +430,58 @@ GameUI = {
     }, 2000);
   },
 
+  // Resets the board UI
   resetBoard: function() {
-    $('.board_container').css({'opacity': 0});
+    $('.board_container').css({
+      'opacity': 0
+    });
     setTimeout(function() {
       $('.board_container').html("");
       GameUI.renderBoard(GameState.board);
-      $('.board_container').css({'opacity': 1});
+      $('.board_container').css({
+        'opacity': 1
+      });
     }, 400);
   },
 
+  // Starts the win animation for winning player
   showWin: function() {
     if (GameState.currentPlayer === 1) {
-      $('.player_one .result').html("<i class='fa fa-smile-o'></i>").css({'opacity': '1'});
-      setTimeout(function(){
-        $('.player_one .result').html("<i class='fa fa-smile-o'></i>").css({'opacity': '0'});
+      $('.player_one .result').html("<i class='fa fa-smile-o'></i>").css({
+        'opacity': '1'
+      });
+      setTimeout(function() {
+        $('.player_one .result').html("<i class='fa fa-smile-o'></i>").css({
+          'opacity': '0'
+        });
       }, 2000);
     }
     if (GameState.currentPlayer === -1) {
-      $('.player_two .result').html("<i class='fa fa-smile-o'></i>").css({'opacity': '1'});
-      setTimeout(function(){
-        $('.player_two .result').html("<i class='fa fa-smile-o'></i>").css({'opacity': '0'});
+      $('.player_two .result').html("<i class='fa fa-smile-o'></i>").css({
+        'opacity': '1'
+      });
+      setTimeout(function() {
+        $('.player_two .result').html("<i class='fa fa-smile-o'></i>").css({
+          'opacity': '0'
+        });
       }, 2000);
     }
   },
 
+  // Starts the draw animation
   showDraw: function() {
-    $('.result').html("<i class='fa fa-frown-o'></i>").css({'opacity': '1'});
-    setTimeout(function(){
-      $('.result').html("<i class='fa fa-frown-o'></i>").css({'opacity': '0'});
+    $('.result').html("<i class='fa fa-frown-o'></i>").css({
+      'opacity': '1'
+    });
+    setTimeout(function() {
+      $('.result').html("<i class='fa fa-frown-o'></i>").css({
+        'opacity': '0'
+      });
     }, 2000);
   }
 };
 
+// Runs everything
 $(document).ready(function() {
   GameState.initializeBoardState(3);
   GameUI.handleBoardSizeClick();
