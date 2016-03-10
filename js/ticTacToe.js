@@ -186,8 +186,8 @@ GameState = {
     var xPosition = cell.x_dimension;
     var yPosition = cell.y_dimension;
     // Check if move acceptable,
-    if (this.getCellValue(xPosition, yPosition) === null) {
-      this.setCellValue(xPosition, yPosition);
+    if (this.board[yPosition][xPosition].value === null) {
+      this.board[yPosition][xPosition].value = this.currentPlayer;
       GameUI.markBoard(this.currentPlayer, cell);
       this.movesTaken++;
       if (this.isGameOver()) {
@@ -199,15 +199,6 @@ GameState = {
     } else {
       return false;
     }
-
-  },
-
-  getCellValue: function(xPosition, yPosition) {
-    return this.board[yPosition][xPosition].value;
-  },
-
-  setCellValue: function(xPosition, yPosition) {
-    this.board[yPosition][xPosition].value = this.currentPlayer;
   },
 
   isGameOver: function() {
