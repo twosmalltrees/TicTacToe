@@ -24,4 +24,5 @@ You can toggle between these board sizes via the links below the board.
 ### Enjoy!
 
 Well, that's it from me. Have fun!
+
 Harrison.
