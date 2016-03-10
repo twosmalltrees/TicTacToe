@@ -77,8 +77,8 @@ body {
 }
 
 .board_container {
-
-
+  opacity: 1;
+  transition: opacity 0.4s;
 }
 
 .player_info {
@@ -88,6 +88,24 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+
+.result {
+  font-family: "Montserrat";
+  font-size: 40px;
+  height: 60px;
+  width: 100%;
+  text-align: center;
+  color: white;
+  opacity: 0;
+  transition: all 0.5s;
+}
+
+.spacer {
+  height: 50px;
+  width: 100%;
+  text-align: center;
+  color: white;
 }
 
 .player_logo {

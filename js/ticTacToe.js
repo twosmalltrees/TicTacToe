@@ -153,15 +153,7 @@ ComputerPlayer = {
     }
     return sum;
   }
-
 };
-
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//  GAME STATEGAME STATEGAME STATEGAME STATEGAME STATEGAME STATEGAME STATEGAME STATEGAME STATE////
-
-
 
 GameState = {
   board: [],
@@ -200,7 +192,6 @@ GameState = {
       this.movesTaken++;
       if (this.isGameOver()) {
         GameUI.endGame(this.currentPlayer, this.winCells);
-        this.resetGame(this.boardSize);
       } else {
         this.currentPlayer *= -1;
         GameUI.updatePlayerTurn(GameState.currentPlayer);
@@ -223,17 +214,18 @@ GameState = {
     if (this.checkRows() || this.checkColumns() || this.checkDiagonals()) {
       if (this.currentPlayer === 1) {
         this.playerOneWins++;
+        GameUI.showWin();
       } else if (this.currentPlayer === -1) {
         this.playerTwoWins++;
+        GameUI.showWin();
       }
       return true;
     } else if (this.movesTaken === (this.board.length * this.board.length)) {
+      GameUI.showDraw();
       return true;
     } else {
       return false;
     }
-
-
   },
 
   checkRows: function() {
@@ -304,18 +296,9 @@ GameState = {
   }
 };
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///// UI RENDERING UI RENDERING UI RENDERING UI RENDERING UI RENDERING UI RENDERING UI RENDER//////
 
 GameUI = {
-  // UI rendering
   renderBoard: function(board) {
-    // Render this board to screen
-
-    // Figure out required cell dimensions...
-    // 400 px is board size. Overall cells should take up  95%.
-    // So totalCellsWidth = 400 * 95/100.
-    // Individual cell width = totalCellsWidth/board.length
     $board = $('<div>');
     $board.addClass('board');
     $board.append("<div class='board_border'></div>");
@@ -427,14 +410,41 @@ GameUI = {
     $('.cell').removeClass('clickable player_one_hover player_two_hover');
     $('div.cell').off('click');
     this.updatePlayerScores();
-    this.resetBoard();
+    window.setTimeout(function() {
+      GameState.resetGame();
+    }, 2000);
   },
 
   resetBoard: function() {
-    $('.board_container').html("");
-    GameUI.renderBoard(GameState.board);
+    $('.board_container').css({'opacity': 0});
+    setTimeout(function() {
+      $('.board_container').html("");
+      GameUI.renderBoard(GameState.board);
+      $('.board_container').css({'opacity': 1});
+    }, 400);
   },
 
+  showWin: function() {
+    if (GameState.currentPlayer === 1) {
+      $('.player_one .result').html("<i class='fa fa-smile-o'></i>").css({'opacity': '1'});
+      setTimeout(function(){
+        $('.player_one .result').html("<i class='fa fa-smile-o'></i>").css({'opacity': '0'});
+      }, 2000);
+    }
+    if (GameState.currentPlayer === -1) {
+      $('.player_two .result').html("<i class='fa fa-smile-o'></i>").css({'opacity': '1'});
+      setTimeout(function(){
+        $('.player_two .result').html("<i class='fa fa-smile-o'></i>").css({'opacity': '0'});
+      }, 2000);
+    }
+  },
+
+  showDraw: function() {
+    $('.result').html("<i class='fa fa-frown-o'></i>").css({'opacity': '1'});
+    setTimeout(function(){
+      $('.result').html("<i class='fa fa-frown-o'></i>").css({'opacity': '0'});
+    }, 2000);
+  }
 };
 
 $(document).ready(function() {
