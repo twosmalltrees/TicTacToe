@@ -2,7 +2,7 @@
 
 Who doesn't love a good game of tic tac toe? Especially against an unbeatable computer opponent! Play a few rounds now at [http://twosmalltrees.github.io/TicTacToe/](http://twosmalltrees.github.io/TicTacToe/).
 
-This simple game uses only HTML, CSS, JavaScript and [jQuery](https://jquery.com/). However it's got some fun built in features:
+I built this as my first project during my time studying General Assembly Sydney's Web Development Immersive Course. The game uses only HTML, CSS, JavaScript and [jQuery](https://jquery.com/). However it's got some fun built in features:
 
 ### Human vs. Human
 
